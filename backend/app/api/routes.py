@@ -1,9 +1,8 @@
-# Define as rotas da API.
-from fastapi import APIRouter
-from app.domain.summarize_transcript import study_assistant
+from fastapi import APIRouter, Depends
+from app.domain.StudyAssistantManager import StudyAssistantManager
 
 router = APIRouter()
 
 @router.get("/chat")
-def chat_endpoint():
-    return study_assistant("Resuma o vídeo", "https://www.youtube.com/watch?v=IgvF0Dw7aMY")
+def chat_endpoint(assistant_manager: StudyAssistantManager = Depends()):
+    return assistant_manager.invoke_study_assistant("Quantos habitantes a cidade de santana do livramento possui?", "https://www.youtube.com/watch?v=IgvF0Dw7aMY")
