@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Message } from "../components/types/Message";
+import { Message } from "../app/components/types/Message";
 
 export function useChatStream({ messagesList }: { messagesList: Message[] }) {
   const [isLoading, setIsLoading] = useState(false);

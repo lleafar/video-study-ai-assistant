@@ -3,7 +3,7 @@
 import { useState } from "react";
 import MessageList from "./MessageList";
 import { Message } from "./types/Message";
-import { useChatStream } from "../hooks/useChatStream";
+import { useChatStream } from "../../hooks/useChatStream";
 
 export default function Chat() {
   const [message, setMessage] = useState("");
