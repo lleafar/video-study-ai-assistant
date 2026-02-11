@@ -10,10 +10,17 @@ export default function MessageList({
       {messageList.map((message, index) => (
         <div
           key={index}
-          className={`max-w-[80%] px-4 py-2 rounded-lg mb-2 
-            ${message.sender === "user" ? "bg-zinc-600/30 text-white self-end rounded-tr-none" : "self-start"}`}
+          className={`relative max-w-[80%] px-4 py-2 rounded-lg mb-2             
+            ${message.sender === "user" ? "bg-zinc-600/30 text-white self-end rounded-tr-none" : "self-start"}            
+            `}
         >
-          {message.content}
+          {message.type === "error" ? (
+            <span className="text-red-500 text-sm">
+              Erro: {message.content}
+            </span>
+          ) : (
+            message.content
+          )}
         </div>
       ))}
     </div>
