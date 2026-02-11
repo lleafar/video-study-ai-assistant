@@ -8,9 +8,7 @@ type Session = {
 };
 
 type ChatState = {
-  videoUrl: string;
   messagesList: Message[];
-  setVideoUrl: (url: string) => void;
   setMessagesList: (messages: Message[]) => void;
   currentSessionId: string;
   sessions: Array<Session>;
@@ -25,16 +23,14 @@ type ChatState = {
 };
 
 export const useChatStore = create<ChatState>((set, get) => ({
-  videoUrl: "",
-  messagesList: [],
-  setVideoUrl: (url: string) => set({ videoUrl: url }),
+  messagesList: [],  
   setMessagesList: (messages: Message[]) => set({ messagesList: messages }),
 
   currentSessionId: "1",
   sessions: [
     {
       id: "1",
-      videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      videoUrl: "",
       messages: [
         {
           content: "Olá, em que posso ajudar?",
@@ -82,13 +78,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
           typeof messages === "function"
             ? messages(session.messages)
             : messages;
-
-        console.log(
-          "Updating session messages for session",
-          session.id,
-          "with messages:",
-          nextMessages,
-        );
 
         return { ...session, messages: nextMessages };
       }),

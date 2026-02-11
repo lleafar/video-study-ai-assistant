@@ -3,8 +3,9 @@ import { useChatStore } from "@/store/useChatStore";
 import ReactPlayer from "react-player";
 
 export default function VideoPlayer() {
-  const videoUrl = useChatStore((s) => s.videoUrl);
-  const setVideoUrl = useChatStore((s) => s.setVideoUrl);
+  const videoUrl = useChatStore((s) => s.getCurrentSession()?.videoUrl ?? "");
+  const setVideoUrl = useChatStore((s) => s.updateSessionVideoUrl);
+  const currentSessionId = useChatStore((s) => s.currentSessionId);
 
   const readClipboard = async () => {
     try {
@@ -15,7 +16,7 @@ export default function VideoPlayer() {
         text.includes("watch?v=") &&
         videoUrl === ""
       ) {
-        setVideoUrl(text);
+        setVideoUrl(currentSessionId,text);
       }
     } catch (err) {
       console.error("Failed to read clipboard contents: ", err);
@@ -33,7 +34,7 @@ export default function VideoPlayer() {
             className="block py-2.5 px-0 w-full text-sm text-heading bg-transparent border-0 border-b-2 border-default-medium appearance-none focus:outline-none focus:ring-0 focus:border-brand peer"
             placeholder=" "
             value={videoUrl}
-            onChange={(e) => setVideoUrl(e.target.value)}
+            onChange={(e) => setVideoUrl(currentSessionId, e.target.value)}
           />
           <label
             htmlFor="video_url"
