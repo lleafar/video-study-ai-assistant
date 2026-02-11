@@ -1,9 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useChatStore } from "@/store/useChatStore";
 import ReactPlayer from "react-player";
 
 export default function VideoPlayer() {
-  const [videoUrl, setVideoUrl] = useState("");
+  const videoUrl = useChatStore((s) => s.videoUrl);
+  const setVideoUrl = useChatStore((s) => s.setVideoUrl);
 
   const readClipboard = async () => {
     try {
@@ -25,7 +26,6 @@ export default function VideoPlayer() {
     <div className="flex justify-center items-center w-full h-full">
       {videoUrl === "" ? (
         <div className="relative z-0 w-full mx-10">
-          
           <input
             onFocus={readClipboard}
             type="text"

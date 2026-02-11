@@ -1,14 +1,20 @@
 import { useState } from "react";
 import { Message } from "../app/components/types/Message";
+import { useChatStore } from "@/store/useChatStore";
 
-export function useChatStream({ messagesList }: { messagesList: Message[] }) {
+export function useChatStream() {
   const [isLoading, setIsLoading] = useState(false);
-  const [messages, setMessages] = useState<Message[]>(messagesList);
+  const currentSessionId = useChatStore((s) => s.currentSessionId);
+  const updateSessionMessages = useChatStore((s) => s.updateSessionMessages);
 
   const sendMessage = async (videoUrl: string, message: string) => {
     setIsLoading(true);
 
-    setMessages(prev => [...prev, { content: message, sender: "user" }]);
+    // Add the user's message to the session messages immediately
+    updateSessionMessages(currentSessionId, (prev) => [
+      ...prev,
+      { content: message, sender: "user" },
+    ]);
 
     try {
       const response = await fetch("/api/chat", {
@@ -19,15 +25,26 @@ export function useChatStream({ messagesList }: { messagesList: Message[] }) {
         body: JSON.stringify({ videoUrl, message }),
       });
 
+      if (!response.ok) {
+        throw new Error(
+          `Error from server: ${response.status} ${response.statusText}`,
+        );
+      }
+
       if (!response.body) {
         throw new Error("No response body, unable to stream.");
+      }
+
+      if (!response.body.getReader) {
+        throw new Error("Response body does not support streaming.");
       }
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder("utf-8");
 
       const newMessage: Message = { content: "", sender: "assistant" };
-      setMessages(prev =>[...prev, newMessage]);
+      // Add an empty assistant message to the session to be updated with streaming content
+      updateSessionMessages(currentSessionId, (prev) => [...prev, newMessage]);
 
       let assistantMessages = "";
 
@@ -40,23 +57,31 @@ export function useChatStream({ messagesList }: { messagesList: Message[] }) {
 
         assistantMessages += cleanedChunk;
 
-        setMessages(prev => {
-          const updatedMessages = [...prev];
-          const lastMessageIndex = updatedMessages.length - 1;
-          updatedMessages[lastMessageIndex] = {
+        // Update the last message in the session with the new content
+        updateSessionMessages(currentSessionId, (prev) => {
+          if (prev.length === 0) return prev;
+          const next = [...prev];
+          next[next.length - 1] = {
             content: assistantMessages,
             sender: "assistant",
           };
-          return updatedMessages;
+          return next;
         });
-
       }
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.log("Error sending message:", error);
+      updateSessionMessages(currentSessionId, (prev) => [
+        ...prev,
+        {
+          content: "Desculpe, ocorreu um erro ao enviar sua mensagem.",
+          sender: "assistant",
+          type: "error",
+        },
+      ]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  return { sendMessage, messages, isLoading };
+  return { sendMessage, isLoading };
 }

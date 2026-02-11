@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import SidebarItem from "./SidebarItem";
+import { useChatStore } from "@/store/useChatStore";
 
 export default function Sidebar() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
+  const sessions = useChatStore((s) => s.sessions);
 
   return (
     <aside className="h-screen flex flex-col bg-zinc-900/50 shadow-md">
@@ -19,7 +21,13 @@ export default function Sidebar() {
           <span>Sessões</span>
         </div>
         <div className="gap-4">
-          <SidebarItem route="/1" label="Consultas" />
+          {sessions.map((session) => (
+            <SidebarItem
+              key={session.id}
+              route={`/${session.id}`}
+              label={`Sessão ${session.id}`}
+            />
+          ))}
         </div>
       </nav>
     </aside>
