@@ -57,7 +57,8 @@ class StudyAssistantManager:
             self.session_config["configurable"]["full_docs"] = transcript
             
         initial_state = {"messages": [HumanMessage(prompt)]}
-        response = self.agent.invoke(initial_state, config=self.session_config)
+        # response = self.agent.invoke(initial_state, config=self.session_config)
+        response = self.agent.stream(initial_state, config=self.session_config, stream_mode="messages")
         return response
         
         

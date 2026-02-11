@@ -6,7 +6,7 @@ def get_transcript(video_id: str):
     loader = YoutubeLoader.from_youtube_url(
         video_id,
         add_video_info=False,
-        language=["pt", "en"],
+        language=["pt", "en", "es"],
         transcript_format=TranscriptFormat.CHUNKS,
         chunk_size_seconds=600
     )        
