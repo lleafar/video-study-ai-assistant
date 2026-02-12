@@ -33,7 +33,7 @@ export default function Chat() {
   return (
     <div className="flex flex-col justify-center items-center w-full h-full">
       <div className="flex flex-col justify-end items-center w-xs sm:w-sm md:w-md lg:w-5xl h-full">
-        <div id="message-container" className="overflow-auto">
+        <div id="message-container" className="overflow-y-auto">
           <MessageList messageList={messages} />
         </div>
         <form onSubmit={handleSubmitMessage} className="w-full mt-5 p-5">
