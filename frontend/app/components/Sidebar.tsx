@@ -24,7 +24,7 @@ export default function Sidebar() {
           {sessions.map((session) => (
             <SidebarItem
               key={session.id}
-              route={`/${session.id}`}
+              route={`/chat/${session.id}`}
               label={`Sessão ${session.id}`}
             />
           ))}
