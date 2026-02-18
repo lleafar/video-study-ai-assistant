@@ -8,8 +8,6 @@ type Session = {
 };
 
 type ChatState = {
-  messagesList: Message[];
-  setMessagesList: (messages: Message[]) => void;
   currentSessionId: string;
   sessions: Array<Session>;
   getCurrentSession: () => Session;
@@ -29,10 +27,6 @@ const EMPTY_SESSION:Session = {
 };
 
 export const useChatStore = create<ChatState>((set, get) => ({
-  messagesList: [],
-  setMessagesList: (messages: Message[]) => set({ messagesList: messages }),
-
-  // currentSessionId: "1",
   currentSessionId: "",
   sessions: [
     {
