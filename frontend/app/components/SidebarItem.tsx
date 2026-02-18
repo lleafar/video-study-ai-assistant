@@ -6,11 +6,9 @@ export default function SidebarItem({
   label,
   onClick,
 }: {
-  children?: React.ReactNode;
-  icon?: string;
+  children?: React.ReactNode;  
   route: string;
   label: string;
-  active?: boolean;
   onClick?: () => void;
 }) {
   const [selected, setSelected] = useState(false);
@@ -21,14 +19,14 @@ export default function SidebarItem({
 
   return (
     <div className="flex-col">
-      <div className={`w-full h-full rounded-l-full ${selected ? "bg-zinc-900" : "bg-transparent hover:bg-zinc-600/30"} `}>
+      <div className={`w-full h-full rounded-l-full transition-colors ${selected ? "bg-zinc-900" : "bg-transparent hover:bg-zinc-600/30"} `}>
         <a
           href={route}
           onClick={onClick}
-          className="relative z-10 px-4 py-2 rounded flex flex-col items-start gap-3 transition-colors text-sm"
-        >
+          className="relative z-10 px-4 py-2 rounded flex flex-col items-start gap-3 text-sm"
+        >          
           {children && children}
-          {label}
+          <p className="truncate w-full">{label}</p>
         </a>
       </div>
     </div>
