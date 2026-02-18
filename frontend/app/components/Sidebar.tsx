@@ -37,7 +37,7 @@ export default function Sidebar() {
         </button>
       </div>
       {/* <div className="px-3 text-xs uppercase font-semibold shrink-0"> */}
-      <Button className="text-md">
+      <Button className="text-md" route="/">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
