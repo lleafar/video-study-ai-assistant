@@ -5,7 +5,7 @@ import remarkGfm from "remark-gfm";
 export default function MessageList({
   messageList,
 }: {
-  messageList: Message[];
+  messageList: Message[] | [];
 }) {
   return (
     <div className="flex flex-col items-center w-full h-full p-10">
