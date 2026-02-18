@@ -24,7 +24,7 @@ export default function VideoPlayer() {
   };
 
   return (
-    <div className="flex justify-center items-center w-full h-full">
+    <div className="flex justify-center items-center w-full h-full max-w-6xl">
       {videoUrl === "" ? (
         <div className="relative z-0 w-full mx-10">
           <input
@@ -34,7 +34,7 @@ export default function VideoPlayer() {
             className="block py-2.5 px-0 w-full text-sm text-heading bg-transparent border-0 border-b-2 border-default-medium appearance-none focus:outline-none focus:ring-0 focus:border-brand peer"
             placeholder=" "
             value={videoUrl}
-            onChange={(e) => setVideoUrl(currentSessionId, e.target.value)}
+            onChange={(e) => {setVideoUrl(currentSessionId, e.target.value)}}
           />
           <label
             htmlFor="video_url"
@@ -49,7 +49,7 @@ export default function VideoPlayer() {
           controls
           light
           autoPlay
-          width={"100%"}
+          width={"100%"}          
           height={"100%"}
         />
       )}
