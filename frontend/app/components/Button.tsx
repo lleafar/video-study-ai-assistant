@@ -9,12 +9,12 @@ export default function Button({
   route?: string;
   onClick?: () => void;
 }) {
-  const baseStyles = "flex items-center w-full rounded-full hover:bg-zinc-600/30 transition-colors text-sm";
-  const linkStyles= "relative z-10  flex items-center w-full min-w-0 overflow-hidden px-4 py-2 gap-2";
+  const baseStyles = "flex items-center rounded-full hover:bg-zinc-600/30 transition-colors text-sm";
+  const linkStyles= "relative z-10  flex items-center min-w-0 overflow-hidden px-4 py-2 gap-2";
 
   return (
     <div
-      className={baseStyles + (className || "")}
+      className={baseStyles + " " + (className || "")}
     >
       <a
         href={route}
