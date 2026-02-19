@@ -3,7 +3,7 @@
 import { useState } from "react";
 import SidebarItem from "./SidebarItem";
 import { useChatStore } from "@/store/useChatStore";
-import Button from "./Button";
+import Button from "@/app/components/Button";
 
 export default function Sidebar() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
@@ -16,9 +16,9 @@ export default function Sidebar() {
       }`}
     >
       <div className="flex flex-col items-center justify-center h-16 py-20 px-4 shrink-0">
-        <button
+        <Button
           onClick={() => setIsDrawerOpen((prev) => !prev)}
-          className="hover:opacity-70 transition-opacity cursor-pointer"
+          styleType="tertiary"          
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -34,7 +34,7 @@ export default function Sidebar() {
               d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
             />
           </svg>
-        </button>
+        </Button>
       </div>
       {/* <div className="px-3 text-xs uppercase font-semibold shrink-0"> */}
       <Button className="text-md" route="/">
