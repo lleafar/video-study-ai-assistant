@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function SidebarItem({
@@ -11,23 +13,22 @@ export default function SidebarItem({
   label: string;
   onClick?: () => void;
 }) {
-  const [selected, setSelected] = useState(false);
 
-  useEffect(() => {
-    setSelected(window.location.pathname === route);
-  }, [route]);
+  const pathname = usePathname();
+  const selected = pathname === route;
+
 
   return (
     <div className="flex-col">
       <div className={`w-full h-full rounded-l-full transition-colors ${selected ? "bg-zinc-900" : "bg-transparent hover:bg-zinc-600/30"} `}>
-        <a
+        <Link
           href={route}
           onClick={onClick}
           className="relative z-10 px-4 py-2 rounded flex flex-col items-start gap-3 text-sm"
         >          
           {children && children}
           <p className="truncate w-full">{label}</p>
-        </a>
+        </Link>
       </div>
     </div>
   );
