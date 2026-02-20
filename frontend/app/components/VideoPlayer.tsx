@@ -3,11 +3,14 @@ import { useChatStore } from "@/store/useChatStore";
 import ReactPlayer from "react-player";
 import Button from "@/app/components/Button";
 import Input from "@/app/components/Input";
+import { useState } from "react";
+import ModalSelectUrl from "@/app/components/ModalSelectUrl";
 
 export default function VideoPlayer() {
   const videoUrl = useChatStore((s) => s.getCurrentSession()?.videoUrl ?? "");
   const setVideoUrl = useChatStore((s) => s.updateSessionVideoUrl);
   const currentSessionId = useChatStore((s) => s.currentSessionId);
+  const [isUrlModalOpen, setIsUrlModalOpen] = useState(false);
 
   const readClipboard = async () => {
     try {
@@ -29,17 +32,18 @@ export default function VideoPlayer() {
     <div className="flex justify-center items-center w-full h-full max-w-6xl">
       {videoUrl === "" ? (
         <div className="relative z-0 w-full">
-          <Input         
-            id="video_url_input"    
-            type="text" 
+          <Input
+            id="video_url_input"
+            type="text"
             value={videoUrl}
             onChange={(e) => setVideoUrl(currentSessionId, e.target.value)}
-          >            
-            Cole o URL de um vídeo do Youtube para começar a assistir            
+            onFocus={readClipboard}
+          >
+            Cole o URL de um vídeo do Youtube para começar a assistir
           </Input>
           <div className="flex mt-5 gap-2">
             <Input
-              className="bg-zinc-950/30 py-1 px-4"
+              className="py-1 px-4"
               type="file"
               accept="video/*,.pdf,.doc,.docx,.txt"
             >
@@ -60,7 +64,10 @@ export default function VideoPlayer() {
 
               <p>Anexar arquivos</p>
             </Input>
-            <Button className="bg-zinc-950/30 py-1">
+            <Button
+              className="py-1"
+              onClick={() => setIsUrlModalOpen(true)}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -77,6 +84,10 @@ export default function VideoPlayer() {
               </svg>
               <p>Adicionar URLs</p>
             </Button>
+            <ModalSelectUrl
+              isOpen={isUrlModalOpen}
+              onClose={() => setIsUrlModalOpen(false)}
+            />
           </div>
         </div>
       ) : (
