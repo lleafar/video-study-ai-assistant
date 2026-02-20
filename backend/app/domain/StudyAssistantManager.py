@@ -8,7 +8,7 @@ from app.domain.tools.question_answer_tool import answer_question
 from app.domain.tools.summarize_tool import summarize_transcript
 from langchain_community.vectorstores import FAISS
 from app.datasources.youtube_transcript import get_transcript
-from Config import Config
+from config import Config
 
 class StudyAssistantManager:
     _instance = None # Singleton instance
