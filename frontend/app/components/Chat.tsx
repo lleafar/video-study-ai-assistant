@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import MessageList from "./MessageList";
-import { useChatStream } from "../../hooks/useChatStream";
+import MessageList from "@/app/components/MessageList";
+import { useChatStream } from "@/hooks/useChatStream";
 import { useChatStore } from "@/store/useChatStore";
-import { Message } from "./types/Message";
+import { Message } from "@/app/components/types/Message";
 
 export default function Chat() {
   const [message, setMessage] = useState("");

@@ -21,9 +21,9 @@ export default function Input({
 }) {
   const styleType = {
     file: {
-      base: "flex items-center rounded-full hover:bg-zinc-600/30 transition-colors text-sm",
+      base: "flex items-center rounded-full hover:bg-zinc-600/30 transition-colors text-sm bg-zinc-950/30",
       input:
-        "relative z-10  flex items-center min-w-0 overflow-hidden px-4 py-2 gap-2",
+        "relative flex items-center min-w-0 overflow-hidden px-4 py-2 gap-2",
       label: "flex items-center gap-2 cursor-pointer",
     },
     text: {
@@ -39,7 +39,7 @@ export default function Input({
     <div
       className={
         (styleType[type]?.base || styleType["text"].base) +
-        " " +
+        " z-0 " +
         (className || "")
       }
     >
@@ -59,7 +59,7 @@ export default function Input({
         htmlFor={id || "input-" + value}
         className={styleType[type]?.label || styleType["text"].label}
       >
-        {children}
+      {children}
       </label>
     </div>
   );
