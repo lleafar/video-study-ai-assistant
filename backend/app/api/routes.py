@@ -3,6 +3,8 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from app.domain.StudyAssistantManager import StudyAssistantManager
 import json
+import requests
+from bs4 import BeautifulSoup
 
 router = APIRouter()
 
@@ -33,3 +35,13 @@ def chat_endpoint(
                         yield text
             
     return StreamingResponse(generate(), media_type="text/event-stream")
+
+@router.get("/api/get-title")
+async def get_url_title(url: str):
+    try:
+        response = requests.get(url, timeout=5)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        title = soup.find('title')
+        return {"title": title.string if title else url}
+    except Exception as e:
+        return {"title": url, "error": str(e)}
