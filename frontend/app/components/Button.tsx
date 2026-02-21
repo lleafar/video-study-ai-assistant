@@ -5,6 +5,7 @@ export default function Button({
   styleType = "primary",
   type = "default",
   onClick,
+  loading = false,
 }: {
   className?: string;
   children?: React.ReactNode;
@@ -12,15 +13,16 @@ export default function Button({
   styleType?: "primary" | "secondary" | "tertiary";
   type?: "default" | "submit";
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  loading?: boolean;
 }) {
   const styles = {
     primary: {
-      base: `flex items-center rounded-full ${type === "submit" ? "font-semibold text-indigo-500 bg-blue-200 hover:bg-blue-200/90" : "bg-zinc-950/30 hover:bg-zinc-600/30"} transition-colors text-sm`,
-      link: "relative flex items-center min-w-0 overflow-hidden px-4 py-2 gap-2",
+      base: `flex items-center rounded-full shadow-md ${type === "submit" ? "font-semibold text-indigo-300 bg-blue-200/20 hover:bg-blue-300/10 shadow-md" : "bg-zinc-950/30"} hover:bg-zinc-600/30 transition-colors text-sm`,
+      link: "relative flex items-center min-w-0 overflow-hidden px-4 py-2 gap-2 w-full",
     },
     secondary: {
-      base: `flex items-center rounded-full ${type === "submit" ? "font-semibold text-indigo-300 bg-blue-200/20 hover:bg-blue-300/10" : "hover:bg-zinc-600/30"} transition-colors text-sm`,
-      link: "relative flex items-center min-w-0 overflow-hidden px-4 py-2 gap-2",
+      base: `flex items-center rounded-full ${type === "submit" ? "font-semibold text-indigo-300 border-2! border-indigo-300!" : ""} hover:bg-zinc-600/30 transition-colors text-sm`,
+      link: "relative flex items-center min-w-0 overflow-hidden px-4 py-2 gap-2 w-full",
     },
     tertiary: {
       base: "hover:opacity-70 transition-opacity cursor-pointer",
@@ -32,8 +34,8 @@ export default function Button({
     <div
       className={
         (styles[styleType]?.base || styles["primary"].base) +
-        " " +
-        (className || "")
+        (className || "") +
+        (loading ? " pointer-events-none animate-pulse" : "")
       }
     >
       <a
