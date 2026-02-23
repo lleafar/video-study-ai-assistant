@@ -1,7 +1,7 @@
 from langchain.messages import SystemMessage, HumanMessage
 from langchain_core.runnables.config import RunnableConfig
 from langchain.tools import tool
-from config import Config
+from Config import Config
 
 @tool    
 def answer_question(query: str, config: RunnableConfig) -> str:
