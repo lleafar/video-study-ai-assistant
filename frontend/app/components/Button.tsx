@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Button({
   className,
   children,
@@ -12,7 +14,7 @@ export default function Button({
   route?: string;
   styleType?: "primary" | "secondary" | "tertiary";
   type?: "default" | "submit";
-  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => void;
   loading?: boolean;
 }) {
   const styles = {
@@ -37,14 +39,23 @@ export default function Button({
         (className || "") +
         (loading ? " pointer-events-none animate-pulse" : "")
       }
-    >
-      <a
-        href={route}
+    >      
+      {route ? (
+        <Link
+          href={route}
+          onClick={onClick}
+          className={styles[styleType]?.link || styles["primary"].link}
+        >
+          {children}
+        </Link>
+      ) : (        
+      <button
         onClick={onClick}
         className={styles[styleType]?.link || styles["primary"].link}
       >
         {children}
-      </a>
+      </button>
+      )}
     </div>
   );
 }
