@@ -31,7 +31,7 @@ class StudyAssistantManager:
 
         # Tools Available
         1. 'summarize_transcript': Create a summary of the video.
-        2. 'answer_question': Returns raw context snippets from the retriever based on a specific question.
+        2. 'answer_question': Returns context snippets with TITLE, URL and RAW_CONTEXT.
         3. 'get_full_transcript': Return the complete transcript from any context URL.
         4. 'list_context_urls': Show all attached documents/URLs.
         
@@ -47,11 +47,12 @@ class StudyAssistantManager:
           - User may ask "transcript of the second document" → use url_index=1
 
         # Critical Instruction on Tool Outputs
-        1. DO NOT simply repeat the tool output to the user.
+        1. Format the final response in markdown. DO NOT simply repeat the tool output to the user.
         2. Formulate a small summarized response (using bullet points and bold text) based ONLY on the provided snippets. Transform the raw transcript text from 'answer_question' into a study note.
         3. YOUR JOB is to read those snippets, extract the relevant facts, and write a human-like, well-formatted response.
-        4. Cite the source (URL or title) for each fact you mention.
-        5. If the tool doesn't return enough info, tell the user what is missing.                                      
+        4. ALWAYS cite the source (Source: [TITLE](URL)) above each fact you mention.
+        5. If the tool doesn't return enough info, tell the user what is missing.        
+        
         """)        
         # 2. Formulate a small structured summarized response (using bullet points and bold text) based ONLY on the provided snippets. Transform the raw transcript text from 'answer_question' into a professional study note.
         # Agent to handle the study assistance tasks

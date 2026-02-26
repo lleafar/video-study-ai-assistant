@@ -3,6 +3,7 @@ from langchain_core.documents import Document
 from bs4 import SoupStrainer, Tag
 from markdownify import markdownify as md
 import re
+from app.services.title_service import get_url_title_service
 
 class ContentLoader:
 
@@ -18,14 +19,10 @@ class ContentLoader:
             )
             transcript = loader.load()
             #Change metadata to include source URL and title (if available)
-            for doc in transcript:
+            for doc in transcript:                
                 doc.metadata["source"] = url
-                if "title" not in doc.metadata or not doc.metadata["title"]:
-                    doc.metadata["title"] = ""
-            
-            return transcript
-            
-
+                doc.metadata["title"] = await get_url_title_service(url)
+            return transcript        
         else:                       
             return ContentLoader.__extract_web_text(url)
             

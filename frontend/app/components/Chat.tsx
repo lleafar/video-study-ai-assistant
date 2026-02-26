@@ -153,7 +153,7 @@ export default function Chat({ isStacked = false }: { isStacked?: boolean }) {
         </div>
       ) : (
         <div className="flex flex-col justify-end items-center h-full w-[80%] max-w-225">
-          <div id="message-container" className="overflow-y-auto">
+          <div id="message-container" className="overflow-y-auto w-full h-full">
             <MessageList              
               messageList={messages}
             />          

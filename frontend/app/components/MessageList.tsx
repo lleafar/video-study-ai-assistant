@@ -33,40 +33,21 @@ export default function MessageList({
                   disallowedElements={["img", "iframe", "script"]}
                   components={{
                     a: ({ node, ...props }: any) => {
-                      const isBadge =
-                        props.children?.toString().length < 20 ||
-                        /fonte|source|ref/i.test(props.children?.toString());
-
-                      if (isBadge) {
                         return (                      
                             <a
                               {...props}
                               target="_blank"
-                              rel="noopener noreferrer"                            >
-                              <div 
-                               className="gap-1 inline-flex items-center px-1.5  rounded-md bg-white/10  text-[10px] uppercase font-bold  text-white/70 align-middle hover:bg-white/20 hover:text-white transition-colors cursor-pointer"
-                              >          
+                              rel="noopener noreferrer"
+                              className="gap-1 py-1 inline-flex items-center px-1.5  rounded-md bg-white/10  text-[10px] uppercase font-bold  text-white/70 align-middle hover:bg-white/20 hover:text-white transition-colors cursor-pointer"
+                            >          
                                 {props.href.includes("youtube.com") ? (
                                   <VideoIcon className="w-3 min-w-3 max-h-5" />
                                 ) : (
                                   <WebIcon className="w-3 min-w-3 max-h-5" />
                                 )}
-                                <p className="truncate">{props.children}</p>
-                              </div>
+                                <span className="truncate">{props.children}</span>
                             </a>        
                         );
-                      }
-
-                      // Fallback para links normais no meio do texto
-                      return (
-                        <a
-                          {...props}
-                          target="_blank"
-                          className="text-blue-400 underline hover:text-blue-300 transition-colors"
-                        >
-                          {props.children}
-                        </a>
-                      );
                     },
                     ul: ({ ...props }) => (
                       <ul className="list-disc list-outside pl-6" {...props} />

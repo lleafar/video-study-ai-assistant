@@ -1,10 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from app.domain.StudyAssistantManager import StudyAssistantManager
+from app.services.title_service import get_url_title_service
 import json
-import requests
-from bs4 import BeautifulSoup
 
 router = APIRouter()
 
@@ -51,10 +50,5 @@ async def chat_endpoint(request: ChatRequest):
             
 @router.get("/api/get-title")
 async def get_url_title(url: str):
-    try:
-        response = requests.get(url, timeout=5)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        title = soup.find('title')
-        return {"title": title.string if title else url}
-    except Exception as e:
-        return {"title": url, "error": str(e)}
+    title = await get_url_title_service(url)
+    return {"title": title}
