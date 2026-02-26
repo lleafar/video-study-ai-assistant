@@ -49,7 +49,7 @@ class StudyAssistantManager:
 
         # Critical Instruction on Tool Outputs
         1. DO NOT simply repeat the tool output to the user.
-        2. Formulate a small summarized response based ONLY on the provided snippets. Transform the raw transcript text from 'answer_question' into a study note.
+        2. Formulate a small summarized response (using bullet points and bold text) based ONLY on the provided snippets. Transform the raw transcript text from 'answer_question' into a study note.
         3. YOUR JOB is to read those snippets, extract the relevant facts, and write a human-like, well-formatted response.
         4. Cite the source (URL or title) for each fact you mention.
         5. If the tool doesn't return enough info, tell the user what is missing.                                      
@@ -109,8 +109,7 @@ class StudyAssistantManager:
         # Ensure the video URL is included in the context
         context_urls = [video_url] + (context_urls if context_urls else [])
         
-        # Check if context is already loaded by inspecting the retriever
-        print(session_config)
+        # Check if context is already loaded by inspecting the retriever        
         retriever = session_config["configurable"]["retriever"]
         
         loaded_urls = self.__get_loaded_urls_from_retriever(retriever)
