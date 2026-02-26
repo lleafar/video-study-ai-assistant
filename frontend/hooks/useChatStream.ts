@@ -14,7 +14,7 @@ export function useChatStream() {
     // Add the user's message to the session messages immediately
     updateSessionMessages(currentSessionId, (prev) => [
       ...prev,
-      { content: message, sender: "user" },
+      { content: message, sender: "user"},
     ]);
 
     try {
@@ -48,11 +48,12 @@ export function useChatStream() {
       const reader = response.body.getReader();
       const decoder = new TextDecoder("utf-8");
 
-      const newMessage: Message = { content: "⏳ Carregando...", sender: "assistant" };
+      const newMessage: Message = { content: " ", sender: "assistant", state: "loading" };
       // Add an empty assistant message to the session to be updated with streaming content
       updateSessionMessages(currentSessionId, (prev) => [...prev, newMessage]);
 
       let assistantMessages = "";      
+      let thinkingMessages = "";
       let buffer = "";
 
       while (true) {
@@ -83,10 +84,25 @@ export function useChatStream() {
                   next[next.length - 1] = {
                     content: assistantMessages,
                     sender: "assistant",
+                    state: "streaming",
                   };
                   return next;
                 });
               } 
+              // else if (msgData.type === "tool") {
+              //   thinkingMessages += msgData.content;
+              //   updateSessionMessages(currentSessionId, (prev) => {
+              //     if (prev.length === 0) return prev;
+              //     const next = [...prev];
+              //     next[next.length - 1] = {
+              //       content: thinkingMessages,
+              //       sender: "assistant",
+              //       type: "thinking",
+              //     };
+              //     return next;
+              //   });
+              // }
+
             } catch (e) {
               console.error("Failed to parse message:", part, e);
             }
@@ -101,10 +117,25 @@ export function useChatStream() {
           content: "Desculpe, ocorreu um erro ao enviar sua mensagem.",
           sender: "assistant",
           type: "error",
+          state: "done",
         },
       ]);
     } finally {
       setIsLoading(false);
+
+      // Mark the last message as done loading
+      updateSessionMessages(currentSessionId, (prev) => {
+        if (prev.length === 0) return prev;
+        const next = [...prev];
+        const lastMessage = next[next.length - 1];
+        if (lastMessage.sender === "assistant" && lastMessage.state !== "done") {
+          next[next.length - 1] = {
+            ...lastMessage,
+            state: "done",
+          };
+        }
+        return next;
+      });
     }
   };
 

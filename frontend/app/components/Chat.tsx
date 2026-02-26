@@ -74,15 +74,19 @@ function MenuSelect({ limit }: { limit?: number }) {
     <div className="group relative inline-block">
       <div className="z-10 absolute hidden group-focus-within:block bottom-10 bg-zinc-800 rounded shadow-lg w-50">
         <ul className="py-1 text-sm text-gray-200">
-          <li>             
-             <Button className="hover:rounded-none! rounded-none!" styleType="secondary" disabled>
-                <PencilIcon className="size-4"/>
-                <p className="w-full">Alterar vídeo principal</p>
-             </Button>
+          <li>
+            <Button
+              className="hover:rounded-none! rounded-none!"
+              styleType="secondary"
+              disabled
+            >
+              <PencilIcon className="size-4" />
+              <p className="w-full">Alterar vídeo principal</p>
+            </Button>
           </li>
           <li>
-            <AttachFiles className="hover:rounded-none! rounded-none bg-none p-2"/>
-          </li>          
+            <AttachFiles className="hover:rounded-none! rounded-none bg-none p-2" />
+          </li>
           <li>
             <AttachURLsButton
               limit={limit}
@@ -90,9 +94,7 @@ function MenuSelect({ limit }: { limit?: number }) {
               styleType="secondary"
             />
           </li>
-          <li>
-
-          </li>
+          <li></li>
         </ul>
       </div>
       <Button
@@ -124,7 +126,7 @@ export default function Chat({ isStacked = false }: { isStacked?: boolean }) {
   function handleSubmitMessage(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (message.trim() === "") return;
-    sendMessage(videoUrl, attachedUrls,message);
+    sendMessage(videoUrl, attachedUrls, message);
     setMessage("");
   }
 
@@ -152,10 +154,11 @@ export default function Chat({ isStacked = false }: { isStacked?: boolean }) {
       ) : (
         <div className="flex flex-col justify-end items-center h-full w-[80%] max-w-225">
           <div id="message-container" className="overflow-y-auto">
-            <MessageList messageList={messages} />
+            <MessageList              
+              messageList={messages}
+            />          
           </div>
           <div className="w-full p-5">
-            {/* md:grid-cols-6 sm:grid-cols-3 xs:grid-cols-2 */}
             <div
               className={`grid grid-cols-1 w-full max-h-20 gap-x-2 overflow-y-auto
               ${isStacked ? "grid-flow-col md:grid-cols-4 sm:grid-cols-3 xs:grid-cols-2" : "grid-flow-row md:grid-cols-3 sm:grid-cols-1 sm:grid-flow-row"}
