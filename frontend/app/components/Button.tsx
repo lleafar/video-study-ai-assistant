@@ -1,21 +1,25 @@
 import Link from "next/link";
 
 export default function Button({
+  disabled,
   className,
   children,
   route,
   styleType = "primary",
-  type = "default",
+  type = "button",
   onClick,
   loading = false,
+  props
 }: {
+  disabled?: boolean;
   className?: string;
   children?: React.ReactNode;
   route?: string;
   styleType?: "primary" | "secondary" | "tertiary";
-  type?: "default" | "submit";
+  type?: "button" | "submit";
   onClick?: (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => void;
   loading?: boolean;
+  props?: React.ButtonHTMLAttributes<HTMLButtonElement>;
 }) {
   const styles = {
     primary: {
@@ -37,7 +41,8 @@ export default function Button({
       className={
         (styles[styleType]?.base || styles["primary"].base) +
         (className || "") +
-        (loading ? " pointer-events-none animate-pulse" : "")
+        (loading ? " pointer-events-none animate-pulse" : "") +
+        (disabled ? " opacity-50 cursor-not-allowed" : "")
       }
     >      
       {route ? (
@@ -52,6 +57,7 @@ export default function Button({
       <button
         onClick={onClick}
         className={styles[styleType]?.link || styles["primary"].link}
+        {...props}
       >
         {children}
       </button>
