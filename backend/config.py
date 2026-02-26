@@ -1,5 +1,6 @@
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langgraph.checkpoint.memory import InMemorySaver
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from dotenv import load_dotenv
 import os
@@ -15,7 +16,7 @@ class Config:
     @staticmethod
     def get_embeddings() -> OpenAIEmbeddings:
         """Get an instance of OpenAIEmbeddings."""
-        return OpenAIEmbeddings()
+        return OpenAIEmbeddings(model='text-embedding-3-small', openai_api_key=Config.OPENAI_API_KEY)
     
     @staticmethod
     def get_checkpointer() -> InMemorySaver:
@@ -30,3 +31,10 @@ class Config:
             temperature=Config.TEMPERATURE,
             openai_api_key=Config.OPENAI_API_KEY
         )
+        
+    @staticmethod
+    def get_text_splitter() -> RecursiveCharacterTextSplitter:
+        """Get an instance of RecursiveCharacterTextSplitter for text splitting."""
+        return RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200, add_start_index=True)
+        
+    
