@@ -1,12 +1,15 @@
 from langchain.messages import SystemMessage, HumanMessage
 from langchain_core.runnables.config import RunnableConfig
 from langchain.tools import tool
-from config import Config
+from Config import Config
 
-@tool    
+@tool(return_direct=False)
 def answer_question(query: str, config: RunnableConfig) -> str:
-    """Answer a question recreating the retriever from documents in state.
-    Parameters:
+    """
+    Retrieve relevant text from the attached documents using the retriever and answer the user's question based on that context.
+    Use this tool to get the relevant information needed to answer a specific question about the video content or attached documents.
+    
+    Args:
     - query: The question to be answered.
     - config: The RunnableConfig containing the retriever.
     """
@@ -16,18 +19,29 @@ def answer_question(query: str, config: RunnableConfig) -> str:
         return "No relevant documents found to answer the question."
     
     docs = retriever.invoke(query)
-    context = "\n".join([doc.page_content for doc in docs])
-
-    system_prompt = SystemMessage("You are a knowledgeable and helpful assistant that provides accurate answers based on retrieved documents. Provide a concise and accurate answer based on the retrieved context.")
+    if not docs:
+        return "No relevant documents found to answer the question."
     
-    user_message = HumanMessage(f"""
-    Question:
-    {query}
+    context_list = []
+    for doc in docs:
+        source = doc.metadata.get("source", "Unknown source")
+        context_list.append(f"SOURCE: {source}\nRAW CONTEXT: {doc.page_content}\n")
+        
+    context = "\n".join(context_list)
+    return context
     
+    # system_prompt = (
+    #     "You are a knowledgeable and helpful assistant that provides accurate answers based on retrieved documents."
+    #     "Provide a concise and accurate answer based on the retrieved context."
+    #     "If the context does not contain enough information to answer the question, say that you don't know the answer instead of making assumptions."
+    #     "Always refer to the sources in the context when providing your answer."
+    # )
     
-    Context:
-    {context}
-    """)
+    # user_message = f"Question: {query}\n\nContext:\n{context}"
     
-    response = Config.get_llm().invoke([system_prompt, user_message])    
-    return response
+    # response = Config.get_llm().invoke([
+    #     SystemMessage(content=system_prompt), 
+    #     HumanMessage(content=user_message)
+    # ])    
+    
+    # return response

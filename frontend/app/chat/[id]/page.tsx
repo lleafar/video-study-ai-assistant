@@ -29,7 +29,7 @@ export default function ChatPage({
           <VideoPlayer />
         </div>
         <div className="w-full h-auto overflow-auto">
-          <Chat />
+          <Chat isStacked={isStacked} />
         </div>
       </div>
 

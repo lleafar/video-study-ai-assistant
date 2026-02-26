@@ -8,34 +8,47 @@ from bs4 import BeautifulSoup
 
 router = APIRouter()
 
+class ContextURL(BaseModel):
+    url: str = Field(..., description="URL adicional para contexto")
+    title: str = Field(..., description="Título da URL para exibição")
+
 class ChatRequest(BaseModel):
+    chatId: str = Field(..., description="ID único do chat/sessão")
     videoUrl: str = Field(..., description="URL do vídeo para análise")
+    contextURLs: list[ContextURL] = Field(default_factory=list, description="URLs adicionais para contexto")
     message: str = Field(..., description="Pergunta ou comando para o assistente de estudo")
 
+
 @router.post("/chat")
-def chat_endpoint(
-    request: ChatRequest,
-    assistant_manager: StudyAssistantManager = Depends()):
-    print(f"Received chat request with videoUrl: {request.videoUrl} and message: {request.message}")
+async def chat_endpoint(request: ChatRequest):
+    assistant_manager = StudyAssistantManager()  # Get the singleton instance of StudyAssistantManager
+    
+    urls = [context.url for context in request.contextURLs]
     
     async def generate():
-        stream = assistant_manager.invoke_study_assistant(request.message, request.videoUrl)
-        for token, metadata in stream:
-            if token is None:
-                continue
+        
+        stream = await assistant_manager.invoke_study_assistant(
+            chat_id=request.chatId,
+            video_url=request.videoUrl,
+            message=request.message, 
+            context_urls=urls
+        )
+        
+        async for msg, metadata in stream:
+            if msg and hasattr(msg, "content") and msg.content:
+                # Determine message type based on class name
+                msg_class_name = type(msg).__name__
+                msg_type = "ai" if msg_class_name == "AIMessageChunk" else "tool"
+                
+                # Send structured JSON with type info
+                json_msg = json.dumps({
+                    "type": msg_type,
+                    "content": msg.content
+                }, ensure_ascii=False)
+                yield f"data: {json_msg}\n\n"
+                
+    return StreamingResponse(generate(), media_type="text/event-stream; charset=utf-8")
             
-            if token.content_blocks is None:
-                continue
-            
-            for block in token.content_blocks:
-                if block.get("type") == "text":
-                    text = block.get("text", "")
-                    if text:
-                        print(f"Received text chunk: {text}")
-                        yield text
-            
-    return StreamingResponse(generate(), media_type="text/event-stream")
-
 @router.get("/api/get-title")
 async def get_url_title(url: str):
     try:

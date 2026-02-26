@@ -1,9 +1,11 @@
 import { Message } from "@/app/components/types/Message";
 import { create } from "zustand";
-
+import { Attachment } from "@/app/components/types/Attachment";
 type Session = {
   id: string;
+  title: string;
   videoUrl: string;
+  contextUrls: Attachment[];
   messages: Message[];
 };
 
@@ -17,12 +19,15 @@ type ChatState = {
     sessionId: string,
     messages: Message[] | ((prev: Message[]) => Message[]),
   ) => void;
-  updateSessionVideoUrl: (sessionId: string, videoUrl: string) => void;
+  updateSessionVideoUrl: (videoUrl: string, sessionId?: string) => void;
+  updateSessionContextUrls: (contextUrls: Attachment[], sessionId?: string ) => void;
 };
 
-const EMPTY_SESSION:Session = {
+const EMPTY_SESSION: Session = {
   id: "",
+  title: "",
   videoUrl: "",
+  contextUrls: [],
   messages: [],
 };
 
@@ -31,7 +36,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
   sessions: [
     {
       id: "1",
+      title: "The Roadmap for Programmers in the AI Era (2026 and Beyond)",
       videoUrl: "https://www.youtube.com/watch?v=I7UgIy4JIpQ",
+      contextUrls: [],
       messages: [
         {
           content: "Olá, gostaria de um resumo do vídeo que estou assistindo",
@@ -123,11 +130,15 @@ To thrive as a programmer in the AI-driven future, especially by 2026, focus on:
   setCurrentSessionId: (id: string) => set({ currentSessionId: id }),
   addSession: (session: Session) =>
     set((state) => ({
+      currentSessionId: session.id,
       sessions: [...state.sessions, session],
     })),
   getCurrentSession: () => {
     const { sessions, currentSessionId } = get();
-    return sessions.find((session) => session.id === currentSessionId) || EMPTY_SESSION;    
+    return (
+      sessions.find((session) => session.id === currentSessionId) ||
+      EMPTY_SESSION
+    );
   },
   updateSessionMessages: (
     sessionId: string,
@@ -147,7 +158,7 @@ To thrive as a programmer in the AI-driven future, especially by 2026, focus on:
         return { ...session, messages: nextMessages };
       }),
     })),
-  updateSessionVideoUrl: (sessionId: string, videoUrl: string) =>
+  updateSessionVideoUrl: (videoUrl: string, sessionId?: string) =>
     set((state) => ({
       sessions: state.sessions.map((session) =>
         session.id === (sessionId ?? state.currentSessionId)
@@ -155,4 +166,13 @@ To thrive as a programmer in the AI-driven future, especially by 2026, focus on:
           : session,
       ),
     })),
+  updateSessionContextUrls: (contextUrls: Attachment[], sessionId?: string) => {
+    set((state) => ({
+      sessions: state.sessions.map((session) =>
+        session.id === (sessionId ?? state.currentSessionId)
+          ? { ...session, contextUrls }
+          : session,
+      ),
+    }));
+  },
 }));

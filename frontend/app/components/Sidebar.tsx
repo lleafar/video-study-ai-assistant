@@ -68,15 +68,16 @@ export default function Sidebar() {
           <div className="px-3 py-2 text-xs text-gray-400 uppercase font-semibold">
             <span>Chats</span>
           </div>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col h-90 gap-4 overflow-auto">
             {sessions.map((session) => (
               <SidebarItem
                 key={session.id}
                 route={`/chat/${session.id}`}
                 label={
-                  session.messages.length > 0
+                  session.title ||
+                  (session.messages.length > 0
                     ? session.messages[0].content.substring(0, 40)
-                    : ""
+                    : "")
                 }
               />
             ))}
