@@ -8,6 +8,8 @@ export default function Input({
   multiple = false,
   onChange,
   onFocus,
+  onKeyDown,
+  disabled = false,
 }: {
   id?: string;
   className?: string;
@@ -18,12 +20,14 @@ export default function Input({
   multiple?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  disabled?: boolean;
 }) {
   const styleType = {
     file: {
-      base: "flex items-center rounded-full hover:bg-zinc-600/30 transition-colors text-sm bg-zinc-950/30 shadow-md",
+      base: "flex items-center rounded-full hover:bg-zinc-600/30 transition-colors text-sm bg-zinc-950/30 shadow-md",      
       input:
-        "relative flex items-center min-w-0 overflow-hidden px-4 py-2 gap-2",
+        "relative flex items-center min-w-0 overflow-hidden px-4 py-2 gap-2 w-full",        
       label: "flex items-center gap-2 cursor-pointer",
     },
     text: {
@@ -40,7 +44,9 @@ export default function Input({
       className={
         (styleType[type]?.base || styleType["text"].base) +
         " z-0 " +
-        (className || "")
+        (className || "") 
+        + " " + 
+        (disabled ? " opacity-50 cursor-not-allowed" : "")
       }
     >
       <input
@@ -53,8 +59,10 @@ export default function Input({
         multiple={multiple}
         hidden={type === "file"}
         placeholder=""
-        onFocus={onFocus}        
+        onFocus={onFocus}
+        onKeyDown={onKeyDown}
         autoComplete="off"
+        disabled={disabled}
       />
       <label
         htmlFor={id || "input-" + value}
