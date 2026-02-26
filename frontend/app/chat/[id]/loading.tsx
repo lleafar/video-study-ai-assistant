@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="h-screen bg-red-600 flex-1 flex flex-col">
+    <div className="h-screen flex-1 flex flex-col">
       <div className="flex-1 overflow-hidden grid grid-cols-2 grid-rows-1 gap-0">
         {/* Video Player Skeleton */}
         <div className="flex justify-center w-full h-auto bg-black">
