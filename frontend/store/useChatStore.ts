@@ -1,11 +1,11 @@
 import { Message } from "@/app/components/types/Message";
 import { create } from "zustand";
-
+import { Attachment } from "@/app/components/types/Attachment";
 type Session = {
   id: string;
   title: string;
   videoUrl: string;
-  contextUrls: string[];
+  contextUrls: Attachment[];
   messages: Message[];
 };
 
@@ -20,7 +20,7 @@ type ChatState = {
     messages: Message[] | ((prev: Message[]) => Message[]),
   ) => void;
   updateSessionVideoUrl: (videoUrl: string, sessionId?: string) => void;
-  updateSessionContextUrls: (contextUrls: string[], sessionId?: string ) => void;
+  updateSessionContextUrls: (contextUrls: Attachment[], sessionId?: string ) => void;
 };
 
 const EMPTY_SESSION: Session = {
@@ -166,7 +166,7 @@ To thrive as a programmer in the AI-driven future, especially by 2026, focus on:
           : session,
       ),
     })),
-  updateSessionContextUrls: (contextUrls: string[], sessionId?: string) => {
+  updateSessionContextUrls: (contextUrls: Attachment[], sessionId?: string) => {
     set((state) => ({
       sessions: state.sessions.map((session) =>
         session.id === (sessionId ?? state.currentSessionId)

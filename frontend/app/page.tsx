@@ -10,7 +10,8 @@ import { Attachment } from "@/app/components/types/Attachment";
 import AttachmentBadge from "@/app/components/AttachmentBadge";
 import { useUrlTitle } from "@/hooks/useUrlTitle";
 import { validateYouTubeUrl } from "./utils/url-utils";
-
+import AttachURLsButton from "./components/AttachURLsButton";
+import AttachFiles from "./components/AttachFiles";
 
 export default function Home() {
   const [isPending, startTransition] = useTransition();
@@ -18,7 +19,6 @@ export default function Home() {
 
   const { getTitle, isLoading } = useUrlTitle();
 
-  const [isUrlModalOpen, setIsUrlModalOpen] = useState(false);
   const [attachedUrls, setAttachedUrls] = useState<Attachment[]>([]);
   const [inputVideoUrl, setInputVideoUrl] = useState("");
 
@@ -29,10 +29,13 @@ export default function Home() {
       const text = await navigator.clipboard.readText();
       if (
         text &&
-        text.includes("youtube.com") &&
-        text.includes("watch?v=") &&
-        inputVideoUrl === ""
+        validateYouTubeUrl(text) &&
+        inputVideoUrl === ""        
       ) {
+        if(attachedUrls.some((a) => a.url === text)) {
+          setAttachedUrls(attachedUrls.filter((a) => a.url !== text));
+        }
+        
         setInputVideoUrl(text);
       }
     } catch (err) {
@@ -48,15 +51,17 @@ export default function Home() {
 
     const videoUrl = inputVideoUrl.trim();
 
-    if(!validateYouTubeUrl(videoUrl)) {
-      alert("URL inválida. Por favor, insira um URL de vídeo do YouTube válido.");
+    if (!validateYouTubeUrl(videoUrl)) {
+      alert(
+        "URL inválida. Por favor, insira um URL de vídeo do YouTube válido.",
+      );
       return;
     }
-    
+
     const id = Date.now().toString();
 
     const title = await getTitle(videoUrl).catch(() => videoUrl);
-    
+
     const video: Attachment = {
       url: videoUrl,
       title,
@@ -66,16 +71,15 @@ export default function Home() {
       id,
       title: video.title || video.url,
       videoUrl: video.url,
-      contextUrls: attachedUrls.map((a) => a.url),
+      contextUrls: attachedUrls,
       messages: [],
     };
 
-    
     startTransition(() => {
       addSession(newSession);
       router.push(`/chat/${newSession.id}`);
     });
-  }
+  };
 
   return (
     <main className="h-screen flex-1 flex justify-center items-start ">
@@ -107,7 +111,7 @@ export default function Home() {
           </p>
         </div>
         <div className="relative z-0 w-full">
-          <div className="grid grid-cols-2 md:grid-cols-6 sm:grid-cols-3 xs:grid-cols-2 grid-flow-col grid-rows-2 w-full mb-4 max-h-20 gap-x-2 overflow-auto">
+          <div className="grid grid-cols-2 md:grid-cols-6 sm:grid-cols-3 xs:grid-cols-2 grid-flow-col xs:grid-rows-2 w-full mb-4 max-h-20 gap-x-2 overflow-auto">            
             {attachedUrls.map((attachment, index) => (
               <AttachmentBadge
                 key={index}
@@ -130,55 +134,22 @@ export default function Home() {
             Cole o URL de um vídeo do Youtube para começar a assistir
           </Input>
           <div className="flex mt-5 gap-2">
-            <Input
-              className="py-1 px-4"
-              type="file"
-              accept="video/*,.pdf,.doc,.docx,.txt"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-4"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13"
-                />
-              </svg>
-
-              <p>Anexar arquivos</p>
-            </Input>
-            <Button className="py-1" onClick={() => setIsUrlModalOpen(true)}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-4"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"
-                />
-              </svg>
-              <p>Adicionar URLs</p>
-            </Button>
-            <ModalSelectUrl
-              isOpen={isUrlModalOpen}
-              onClose={() => setIsUrlModalOpen(false)}
-              onAttachmentsChange={(attachments) =>
-                setAttachedUrls((prev) => [...prev, ...attachments])
-              }
+            <AttachFiles />
+            <AttachURLsButton
+              limit={3 - attachedUrls.length}
+              onAttachmentsChange={(attachments) => {              
+                if (!attachedUrls.some((a) => attachments.some((att) => att.url === a.url))) {                  
+                  setAttachedUrls((prev) => [...prev, ...attachments]);
+                }
+              }}
             />
           </div>
           <div className="mt-10 w-full">
-            <Button className="shrink-0 font-normal!" type="submit" onClick={handleIniciarConversa}>
+            <Button
+              className="shrink-0 font-normal!"
+              type="submit"
+              onClick={handleIniciarConversa}
+            >
               <p className="text-center w-full">Iniciar conversa</p>
             </Button>
           </div>

@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Message } from "../app/components/types/Message";
 import { useChatStore } from "@/store/useChatStore";
+import { Attachment } from "@/app/components/types/Attachment";
 
 export function useChatStream() {
   const [isLoading, setIsLoading] = useState(false);
   const currentSessionId = useChatStore((s) => s.currentSessionId);
   const updateSessionMessages = useChatStore((s) => s.updateSessionMessages);
 
-  const sendMessage = async (videoUrl: string, message: string) => {
+  const sendMessage = async (videoUrl: string, contextURLs: Attachment[], message: string) => {
     setIsLoading(true);
 
     // Add the user's message to the session messages immediately
@@ -22,7 +23,12 @@ export function useChatStream() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ videoUrl, message }),
+        body: JSON.stringify({ 
+          chatId: currentSessionId,
+          videoUrl, 
+          contextURLs, 
+          message 
+        }),
       });
 
       if (!response.ok) {
@@ -42,31 +48,50 @@ export function useChatStream() {
       const reader = response.body.getReader();
       const decoder = new TextDecoder("utf-8");
 
-      const newMessage: Message = { content: "", sender: "assistant" };
+      const newMessage: Message = { content: "⏳ Carregando...", sender: "assistant" };
       // Add an empty assistant message to the session to be updated with streaming content
       updateSessionMessages(currentSessionId, (prev) => [...prev, newMessage]);
 
-      let assistantMessages = "";
+      let assistantMessages = "";      
+      let buffer = "";
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
         const chunk = decoder.decode(value, { stream: true });
-        const cleanedChunk = chunk.replace(/data: /g, "").replace(/\n\n/g, "");
+        buffer += chunk;
 
-        assistantMessages += cleanedChunk;
+        // Split by newline to handle multiple SSE events
+        const parts = buffer.split("\n\n");
+        buffer = parts[parts.length - 1]; // Keep incomplete message in buffer
 
-        // Update the last message in the session with the new content
-        updateSessionMessages(currentSessionId, (prev) => {
-          if (prev.length === 0) return prev;
-          const next = [...prev];
-          next[next.length - 1] = {
-            content: assistantMessages,
-            sender: "assistant",
-          };
-          return next;
-        });
+        for (let i = 0; i < parts.length - 1; i++) {
+          const part = parts[i].trim();
+          if (part.startsWith("data: ")) {
+            try {
+              const msgData = JSON.parse(part.slice(6)); // Remove "data: " prefix
+              
+              // Accumulate both types but show them differently
+              if (msgData.type === "ai") {
+                assistantMessages += msgData.content;
+                
+                // Update the last message in the session with the new content
+                updateSessionMessages(currentSessionId, (prev) => {
+                  if (prev.length === 0) return prev;
+                  const next = [...prev];
+                  next[next.length - 1] = {
+                    content: assistantMessages,
+                    sender: "assistant",
+                  };
+                  return next;
+                });
+              } 
+            } catch (e) {
+              console.error("Failed to parse message:", part, e);
+            }
+          }
+        }
       }
     } catch (error) {
       console.log("Error sending message:", error);

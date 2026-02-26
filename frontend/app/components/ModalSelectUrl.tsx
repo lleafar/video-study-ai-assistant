@@ -72,7 +72,7 @@ export default function ModalSelectUrl({
       );
 
       setAttachments((prev) => [...prev, ...newUrlsWithTitles]);
-      onAttachmentsChange([...attachments, ...newUrlsWithTitles]);
+      onAttachmentsChange(newUrlsWithTitles);
     }
   };
 
@@ -100,17 +100,18 @@ export default function ModalSelectUrl({
             <CloseIcon className="size-6" />
           </Button>
         </div>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleAddUrls();
-          }}
-        >
+        <div>
           <Input
             id="video_url_input_modal"
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAddUrls();
+              }
+            }}
           >
             Digite ou cole as URLs aqui...
           </Input>
@@ -153,15 +154,15 @@ export default function ModalSelectUrl({
               }}
               loading={isLoading}              
               styleType="secondary"
-              type="submit"
+              type="button"
             >
               <p className="text-center w-full">Adicionar</p>
             </Button>
-            <Button onClick={handleAddUrls} styleType="primary" type="submit">
+            <Button onClick={handleAddUrls} styleType="primary" type="button">
               Adicionar outro
             </Button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
