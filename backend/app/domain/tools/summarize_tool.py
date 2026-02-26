@@ -2,12 +2,23 @@ from langchain.messages import SystemMessage, HumanMessage
 from langchain_core.runnables.config import RunnableConfig
 from langchain.tools import tool
 from Config import Config
+from app.domain.tools.get_full_transcript import get_full_transcript
 
-@tool
-def summarize_transcript(query: str, config: RunnableConfig) -> str:
-    """Summarize the transcript of a YouTube video from the retriever."""
+@tool(return_direct=True)
+def summarize_transcript(config: RunnableConfig,  url_index: int = 0) -> str:
+    """
+    Summarize the transcript of a YouTube video from the retriever.
+    Args:
+    url_index: Index of the URL to get transcript from. 
+                0 = main video (default), 
+                1+ = context URLs in order they were added.
     
-    system_prompt = SystemMessage("""
+    Use this tool when the user explicitly asks for:
+    - A summary of the video content, key points, or main ideas    
+    - A concise overview of the video's transcript
+    """
+    
+    system_prompt = SystemMessage("""                                  
     # Identify
     You are an expert assistant specialized in extracting and summarizing information from YouTube video transcripts.
     Your task is to retrieve the transcript of a given YouTube video and provide a concise summary highlighting the key points discussed in the video.
@@ -17,19 +28,18 @@ def summarize_transcript(query: str, config: RunnableConfig) -> str:
     * Format the summary using markdown with appropriate headings and bullet points.
     
     # Input
-    You will be provided with a retriever.
+    You will be provided with a transcript.
     
     # Output
-    Provide a well-structured summary of the video's transcript in markdown format.
-    
-    """)
-    
-    docs = config["configurable"].get("full_docs", [])
-    if not docs:
-        return "No documents found in the configuration."
-    
-    transcript = "\n".join([doc.page_content for doc in docs])
-    
+    Provide a well-structured summary of the video's transcript in markdown format.                                      
+    Write in the user's language.                                  
+    """)        
+
+    transcript = get_full_transcript.invoke({
+        "config": config,
+        "url_index": url_index
+    })
+
     user_prompt = HumanMessage(f"""
     Please summarize the YouTube video from the following transcript: {transcript}
     And save the summary to a file named "video_summary.md".
@@ -39,7 +49,7 @@ def summarize_transcript(query: str, config: RunnableConfig) -> str:
     
     save_summary_to_file(response.content, "video_summary.md")        
     
-    return response
+    return response.content
 
 # Function to save summary to a markdown file
 def save_summary_to_file(summary: str, filename: str):
