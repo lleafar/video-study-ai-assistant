@@ -22,6 +22,7 @@ export default function MessageList({
             </span>
           ) : (
             <article className="space-y-2 wrap-anywhere">
+              {/* {String(message.content)} */}
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 disallowedElements={["img", "iframe", "script"]}
