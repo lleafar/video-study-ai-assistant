@@ -6,7 +6,6 @@ from app.domain.tools.summarize_tool import summarize_transcript
 from app.domain.tools.get_full_transcript import get_full_transcript
 from app.domain.tools.list_context_urls import list_context_urls
 from langchain_community.vectorstores import FAISS
-from app.datasources.youtube_transcript import get_transcript
 from app.datasources.content_loader import ContentLoader
 from Config import Config
 
@@ -198,40 +197,4 @@ class StudyAssistantManager:
                 initial_state,
                 config=session_config,
                 stream_mode="messages"
-            ) # Stream the response from the agent in "messages" mode for real-time interaction
-            
-   
-    async def get_retriever_results(self, chat_id: str, video_url: str, message: str, context_urls: list[str]):
-        """Retrieve and stream documents from retriever without executing the agent (for testing)."""
-        
-        await self.__add_context_urls(chat_id, video_url, context_urls)
-        
-        session_config = self.get_or_create_session(chat_id)
-        retriever = session_config["configurable"]["retriever"]
-        
-        if retriever is None:
-            yield {"type": "error", "error": "No retriever configured"}
-            return
-        
-        # Get relevant documents based on the user's message
-        try:
-            relevant_docs = retriever.invoke(message)            
-                
-            # Stream each relevant document
-            for idx, doc in enumerate(relevant_docs, 1):
-                doc_msg = {
-                    "index": idx,
-                    "content": doc.page_content,
-                    "metadata": doc.metadata,
-                    "similarity_score": getattr(doc, "similarity_score", None)
-                }
-                yield doc_msg
-                            
-        except Exception as e:
-            print(f"Error in get_retriever_results: {str(e)}")
-            import traceback
-            traceback.print_exc()
-            yield {
-                "type": "error",
-                "error": str(e)
-            }
+            ) # Stream the response from the agent in "messages" mode for real-time interaction            
