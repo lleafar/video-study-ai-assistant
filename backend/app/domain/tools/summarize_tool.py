@@ -41,13 +41,12 @@ def summarize_transcript(config: RunnableConfig,  url_index: int = 0) -> str:
     })
 
     user_prompt = HumanMessage(f"""
-    Please summarize the YouTube video from the following transcript: {transcript}
-    And save the summary to a file named "video_summary.md".
+    Please summarize the YouTube video from the following transcript: {transcript}    
     """)
     
     response = Config.get_llm().invoke([system_prompt, user_prompt])
     
-    save_summary_to_file(response.content, "video_summary.md")        
+    # save_summary_to_file(response.content, "video_summary.md")        
     
     return response.content
 
