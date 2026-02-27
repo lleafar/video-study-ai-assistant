@@ -32,7 +32,7 @@ a:hover, button:hover {
 }
 
 /* Selector for a streaming cursor pulsing dot */
-.is-streaming *:last-child:not(:has(*))::after{
+.is-streaming > *:last-child:not(:has(*))::after{
   content: "";
   display: inline-block; 
   width: 1rem;  /* size-3 */
@@ -53,4 +53,25 @@ a:hover, button:hover {
   50% {
     opacity: 0.5;
   }
+}
+
+@keyframes fbGradientMove {
+  0% {background-position: 0% 50%;}
+  100% {background-position: 100% 50%;}
+}
+
+.fbGradientOnFocus {
+  background-color: transparent;
+}
+
+.fbGradientOnFocus:focus {
+  outline: none;
+  background-image: linear-gradient(
+    90deg,    
+    rgb(147 197 253 / 0.10),
+    rgba(48, 48, 51),
+    rgb(147 197 253 / 0.10)  
+  );
+  background-size: 200% 100%;
+  animation: fbGradientMove 1.4s ease-in-out infinite alternate;
 }

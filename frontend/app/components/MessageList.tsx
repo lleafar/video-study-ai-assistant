@@ -3,6 +3,8 @@ import { Message } from "./types/Message";
 import remarkGfm from "remark-gfm";
 import VideoIcon from "./icons/VideoIcon";
 import WebIcon from "./icons/WebIcon";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { atomDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
 
 export default function MessageList({
   messageList,
@@ -10,7 +12,7 @@ export default function MessageList({
   messageList: Message[] | [];
 }) {
   return (
-    <div className="flex flex-col items-center w-full h-full p-10">
+    <div className="flex-1 flex-col items-center w-full h-full p-10">
       {messageList.map((message, index) => (
         <div
           key={index}
@@ -33,21 +35,21 @@ export default function MessageList({
                   disallowedElements={["img", "iframe", "script"]}
                   components={{
                     a: ({ node, ...props }: any) => {
-                        return (                      
-                            <a
-                              {...props}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="gap-1 py-1 inline-flex items-center px-1.5  rounded-md bg-white/10  text-[10px] uppercase font-bold  text-white/70 align-middle hover:bg-white/20 hover:text-white transition-colors cursor-pointer"
-                            >          
-                                {props.href.includes("youtube.com") ? (
-                                  <VideoIcon className="w-3 min-w-3 max-h-5" />
-                                ) : (
-                                  <WebIcon className="w-3 min-w-3 max-h-5" />
-                                )}
-                                <span className="truncate">{props.children}</span>
-                            </a>        
-                        );
+                      return (
+                        <a
+                          {...props}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="gap-1 py-1 inline-flex items-center px-1.5  rounded-md bg-white/10  text-[10px] uppercase font-bold  text-white/70 align-middle hover:bg-white/20 hover:text-white transition-colors cursor-pointer"
+                        >
+                          {props.href.includes("youtube.com") ? (
+                            <VideoIcon className="w-3 min-w-3 max-h-5" />
+                          ) : (
+                            <WebIcon className="w-3 min-w-3 max-h-5" />
+                          )}
+                          <span className="truncate">{props.children}</span>
+                        </a>
+                      );
                     },
                     ul: ({ ...props }) => (
                       <ul className="list-disc list-outside pl-6" {...props} />
@@ -70,23 +72,33 @@ export default function MessageList({
                     h3: ({ ...props }) => (
                       <h3 className="text-lg font-bold mt-2 mb-1" {...props} />
                     ),
-                    code: ({ className, ...props }) => {
+                    code: ({ className, children, ...props }) => {
                       const isInline = !className;
-                      return isInline ? (
-                        <code
-                          className="bg-gray-700 px-1 rounded text-sm"
-                          {...props}
-                        />
-                      ) : (
-                        <code
-                          className="block bg-gray-800 p-3 rounded overflow-x-auto"
-                          {...props}
-                        />
+                      const match = /language-(\w+)/.exec(className || "");
+
+                      if (isInline) {
+                        return (
+                          <code
+                            className="bg-gray-700 px-1 rounded text-sm"
+                            {...props}
+                          />
+                        );
+                      }
+
+                      return (
+                        <SyntaxHighlighter
+                          language={match?.[1] ?? "text"}
+                          PreTag="div"
+                          style={atomDark}
+                          customStyle={{ margin: 0, overflowX: "auto" }}
+                        >
+                          {String(children).replace(/\n$/, "")}
+                        </SyntaxHighlighter>
                       );
                     },
                     pre: ({ ...props }) => (
                       <pre
-                        className="bg-gray-800 p-3 rounded overflow-x-auto"
+                        className="rounded-md shadow-md overflow-x-auto w-full"
                         {...props}
                       />
                     ),

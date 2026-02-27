@@ -24,7 +24,7 @@ export default function Button({
   const styles = {
     primary: {
       base: `flex items-center rounded-full shadow-md ${type === "submit" ? "font-semibold text-indigo-300 bg-blue-200/20 hover:bg-blue-300/10 shadow-md" : "bg-zinc-950/30"} hover:bg-zinc-600/30 transition-colors text-sm`,
-      link: "relative flex items-center min-w-0 overflow-hidden px-4 py-2 gap-2 w-full",
+      link: `${type === "submit" ? "fbGradientOnFocus focus:opacity-100" : ""} rounded-full relative flex items-center min-w-0 overflow-hidden px-4 py-2 gap-2 w-full`,
     },
     secondary: {
       base: `flex items-center rounded-full ${type === "submit" ? "font-semibold text-indigo-300 border-2! border-indigo-300!" : ""} hover:bg-zinc-600/30 transition-colors text-sm`,

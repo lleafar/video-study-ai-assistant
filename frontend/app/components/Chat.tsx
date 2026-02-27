@@ -6,9 +6,7 @@ import { useChatStream } from "@/hooks/useChatStream";
 import { useChatStore } from "@/store/useChatStore";
 import { Message } from "@/app/components/types/Message";
 import Button from "./Button";
-import Input from "./Input";
 import AttachmentBadge from "./AttachmentBadge";
-import { Attachment } from "./types/Attachment";
 import AttachURLsButton from "./AttachURLsButton";
 import AttachFiles from "./AttachFiles";
 
@@ -115,7 +113,6 @@ export default function Chat({ isStacked = false }: { isStacked?: boolean }) {
     (s) => s.getCurrentSession()?.messages,
   );
   const { sendMessage, isLoading } = useChatStream();
-  // const [attachedUrls, setAttachedUrls] = useState<Attachment[]>([]);
   const attachedUrls = useChatStore(
     (s) => s.getCurrentSession()?.contextUrls ?? [],
   );
@@ -153,7 +150,7 @@ export default function Chat({ isStacked = false }: { isStacked?: boolean }) {
         </div>
       ) : (
         <div className="flex flex-col justify-end items-center h-full w-[80%] max-w-225">
-          <div id="message-container" className="overflow-y-auto w-full h-full">
+          <div id="message-container" className="overflow-y-auto overflow-x-hidden w-full h-full">
             <MessageList              
               messageList={messages}
             />          
