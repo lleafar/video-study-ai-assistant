@@ -8,6 +8,7 @@ from app.domain.tools.list_context_urls import list_context_urls
 from langchain_community.vectorstores import FAISS
 from app.datasources.content_loader import ContentLoader
 from Config import Config
+import asyncio
 
 class StudyAssistantManager:
     _instance = None # Singleton instance
@@ -131,17 +132,24 @@ class StudyAssistantManager:
         print(f"Loaded URLs in retriever: {loaded_urls}")
         print(f"New URLs to load: {new_urls}")
 
+        limit_concurrency = asyncio.Semaphore(3)  # Limit to 3 concurrent loads
         # Load documents only from new URLs
-        for url in new_urls:
-            print(f"Loading documents from: {url}")
-            documents = await ContentLoader.load_data(url)
+        async def _load_one(url: str):
+            async with limit_concurrency:
+                try: 
+                    print(f"Loading documents from: {url}")
+                    documents = await ContentLoader.load_data(url)
+                    return url, (documents or [])
+                except Exception as e:
+                    print(f"No documents found for URL: {url}")
+                    return url, []
+            
+        results = await asyncio.gather(*[_load_one(url) for url in new_urls])
+            
+        for url, docs in results:            
+            if docs:
+                all_docs.extend(docs)            
 
-            if not documents:
-                print(f"No documents found for URL: {url}")
-                continue
-            
-            all_docs.extend(documents)
-            
         if not all_docs:
             return
         

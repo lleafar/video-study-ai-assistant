@@ -2,8 +2,9 @@ from langchain_community.document_loaders import YoutubeLoader, WebBaseLoader
 from langchain_core.documents import Document
 from bs4 import SoupStrainer, Tag
 from markdownify import markdownify as md
-import re
 from app.services.title_service import get_url_title_service
+import re
+import asyncio
 
 class ContentLoader:
 
@@ -24,7 +25,7 @@ class ContentLoader:
                 doc.metadata["title"] = await get_url_title_service(url)
             return transcript        
         else:                       
-            return ContentLoader.__extract_web_text(url)
+            return await asyncio.to_thread(ContentLoader.__extract_web_text, url)
             
     @staticmethod
     def __extract_web_text(url: str) -> list[Document]:
