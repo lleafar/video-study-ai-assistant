@@ -51,8 +51,9 @@ class StudyAssistantManager:
         1. Format the final response in markdown. DO NOT simply repeat the tool output to the user.
         2. Formulate a small summarized response (using bullet points and bold text) based ONLY on the provided snippets. Transform the raw transcript text from 'answer_question' into a study note.
         3. YOUR JOB is to read those snippets, extract the relevant facts, and write a human-like, well-formatted response.
-        4. ALWAYS cite the source (Source: [TITLE](URL)) above each fact you mention.
-        5. If the tool doesn't return enough info, tell the user what is missing.        
+        4. ALWAYS cite the sources (Source: [TITLE](URL)) below each fact you mention.
+        5. If the tool doesn't return enough info, tell the user what is missing.      
+        6. ALWAYS translate the final response to the user's language if needed.                                     
         
         """)        
         # 2. Formulate a small structured summarized response (using bullet points and bold text) based ONLY on the provided snippets. Transform the raw transcript text from 'answer_question' into a professional study note.

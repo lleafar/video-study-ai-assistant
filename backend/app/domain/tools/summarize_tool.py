@@ -5,10 +5,11 @@ from Config import Config
 from app.domain.tools.get_full_transcript import get_full_transcript
 
 @tool(return_direct=True)
-def summarize_transcript(config: RunnableConfig,  url_index: int = 0) -> str:
+def summarize_transcript(config: RunnableConfig,  query: str, url_index: int = 0) -> str:
     """
     Summarize the transcript of a YouTube video from the retriever.
     Args:
+    query: The user's query or request for summary. 
     url_index: Index of the URL to get transcript from. 
                 0 = main video (default), 
                 1+ = context URLs in order they were added.
@@ -32,7 +33,7 @@ def summarize_transcript(config: RunnableConfig,  url_index: int = 0) -> str:
     
     # Output
     Provide a well-structured summary of the video's transcript in markdown format.                                      
-    Write in the user's language.                                  
+    ALWAYS translate the summary to the user's language based on the query if needed.                                  
     """)        
 
     transcript = get_full_transcript.invoke({
@@ -41,7 +42,8 @@ def summarize_transcript(config: RunnableConfig,  url_index: int = 0) -> str:
     })
 
     user_prompt = HumanMessage(f"""
-    Please summarize the YouTube video from the following transcript: {transcript}    
+    User Query: {query}                               
+    Please summarize the YouTube video from the following transcript: {transcript}        
     """)
     
     response = Config.get_llm().invoke([system_prompt, user_prompt])
