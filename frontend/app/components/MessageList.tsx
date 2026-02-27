@@ -12,12 +12,14 @@ export default function MessageList({
   messageList: Message[] | [];
 }) {
   return (
-    <div className="flex-1 flex-col items-center w-full h-full p-10">
+    <div className="flex flex-col items-stretch h-full p-10 min-w-0">
       {messageList.map((message, index) => (
         <div
           key={index}
-          className={`relative px-4 py-2 rounded-lg mb-2             
-            ${message.sender === "user" ? "bg-zinc-600/30 text-white self-end rounded-tr-none" : "self-start"}            
+          className={`relative px-4 py-2 rounded-lg mb-2 min-w-0
+            ${message.sender === "user" ? 
+              " max-w-[85%] w-fit ml-auto self-end bg-zinc-600/30 text-white rounded-tr-none" :
+              " max-w-full mr-auto"}            
             `}
         >
           {message.type === "error" ? (
@@ -27,7 +29,7 @@ export default function MessageList({
           ) : (
             <div>
               <article
-                className={`space-y-2 wrap-anywhere ${message.state === "streaming" ? "is-streaming" : ""}`}
+                className={`space-y-2 wrap-anywhere min-w-0 ${message.state === "streaming" ? "is-streaming" : ""}`}
               >
                 <ReactMarkdown
                   children={message.content}
@@ -47,7 +49,7 @@ export default function MessageList({
                           ) : (
                             <WebIcon className="w-3 min-w-3 max-h-5" />
                           )}
-                          <span className="truncate">{props.children}</span>
+                          <span className="truncate text-wrap">{props.children}</span>
                         </a>
                       );
                     },
@@ -81,7 +83,9 @@ export default function MessageList({
                           <code
                             className="bg-gray-700 px-1 rounded text-sm"
                             {...props}
-                          />
+                          >
+                            {children}
+                          </code>
                         );
                       }
 
@@ -90,7 +94,7 @@ export default function MessageList({
                           language={match?.[1] ?? "text"}
                           PreTag="div"
                           style={atomDark}
-                          customStyle={{ margin: 0, overflowX: "auto" }}
+                          customStyle={{ margin: 0, overflowX: "auto", maxWidth: "100%" }}
                         >
                           {String(children).replace(/\n$/, "")}
                         </SyntaxHighlighter>
@@ -98,7 +102,7 @@ export default function MessageList({
                     },
                     pre: ({ ...props }) => (
                       <pre
-                        className="rounded-md shadow-md overflow-x-auto w-full"
+                        className="rounded-md shadow-md overflow-x-auto max-w-full min-w-0"
                         {...props}
                       />
                     ),
