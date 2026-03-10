@@ -5,27 +5,68 @@ from markdownify import markdownify as md
 from app.services.title_service import get_url_title_service
 import re
 import asyncio
+from tenacity import retry, stop_after_attempt, wait_exponential, RetryError, retry_if_exception_type
+from httpx import ConnectTimeout, ReadTimeout, ConnectError, WriteError, TimeoutException
+
+# Define the exceptions that should trigger a retry (CircuitBreak strategy can be implemented in the future if needed)
+RETRYABLE_EXCEPTIONS = (
+    ConnectTimeout, # Timeout while trying to connect to the server (e.g., server is down, network issues)
+    ReadTimeout, # Timeout while waiting for a response from the server (e.g., server is slow, network issues)
+    ConnectError, # Error while trying to establish a new connection (e.g., server is unreachable, network issues)
+    WriteError, # Error while trying to send data to the server (e.g., server is overloaded, network issues)
+    TimeoutException # General timeout exception (e.g., operation took too long)
+)
 
 class ContentLoader:
 
     @staticmethod
     async def load_data(url:str):        
+                
+        try:
+            return await asyncio.wait_for(ContentLoader._load_safe(url), timeout=30)  # Set an overall timeout for the loading operation
+        except asyncio.TimeoutError as e:
+            print(f"Timeout while loading content from {url}: {e}")
+            return []
+        except RetryError as e:
+            print(f"Failed to load content from {url} after multiple attempts: {e}")
+            return []
+        except Exception as e:
+            print(f"Unexpected error while loading content from {url}: {e}")
+            return []
+        
+    @retry(
+        stop=stop_after_attempt(3), 
+        wait=wait_exponential(multiplier=1, min=2, max=5),
+        retry=retry_if_exception_type(RETRYABLE_EXCEPTIONS),
+        reraise=True  # Reraise for non-retryable exceptions and after max attempts
+    )
+    async def _load_safe(url:str):
         # Implement logic to load data from different sources (YouTube, Websites, etc.)
+        # Executes asynchronously to avoid blocking the event loop, especially for potentially long-running operations like web scraping or API calls
+        # Retry Backoff: Will retry up to 3 times with exponential backoff (2s, 4s, 5s) between attempts in case of failures
         if "youtube.com" in url or "youtu.be" in url:            
             # Load YouTube transcript in chunks
             loader = YoutubeLoader.from_youtube_url(
                 url,                                                 
                 add_video_info=False,
                 language=["pt", "en", "es"],
-            )
-            transcript = loader.load()
+            )                               
+            
+            # Load transcript in a separate thread to avoid blocking
+            # Apparently the YoutubeLoader method aload() doesn't work properly, 
+            # so we use asyncio.to_thread to run the synchronous load() method without blocking the event loop
+            transcript = await asyncio.to_thread(loader.load)  
+                        
+            title = await get_url_title_service(url)  # Fetch the title of the YouTube video                            
+                        
             #Change metadata to include source URL and title (if available)
             for doc in transcript:                
                 doc.metadata["source"] = url
-                doc.metadata["title"] = await get_url_title_service(url)
+                doc.metadata["title"] = title if title else url
+            
             return transcript        
         else:                       
-            return await asyncio.to_thread(ContentLoader.__extract_web_text, url)
+            return await asyncio.to_thread(ContentLoader.__extract_web_text, url)        
             
     @staticmethod
     def __extract_web_text(url: str) -> list[Document]:
