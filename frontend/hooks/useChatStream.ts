@@ -53,7 +53,6 @@ export function useChatStream() {
       updateSessionMessages(currentSessionId, (prev) => [...prev, newMessage]);
 
       let assistantMessages = "";      
-      let thinkingMessages = "";
       let buffer = "";
 
       while (true) {
@@ -74,7 +73,7 @@ export function useChatStream() {
               const msgData = JSON.parse(part.slice(6)); // Remove "data: " prefix
               
               // Accumulate both types but show them differently
-              if (msgData.type === "ai") {
+              if (msgData.type === "tool") {
                 assistantMessages += msgData.content;
                 
                 // Update the last message in the session with the new content
@@ -89,19 +88,6 @@ export function useChatStream() {
                   return next;
                 });
               } 
-              // else if (msgData.type === "tool") {
-              //   thinkingMessages += msgData.content;
-              //   updateSessionMessages(currentSessionId, (prev) => {
-              //     if (prev.length === 0) return prev;
-              //     const next = [...prev];
-              //     next[next.length - 1] = {
-              //       content: thinkingMessages,
-              //       sender: "assistant",
-              //       type: "thinking",
-              //     };
-              //     return next;
-              //   });
-              // }
 
             } catch (e) {
               console.error("Failed to parse message:", part, e);
