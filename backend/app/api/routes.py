@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from app.domain.StudyAssistantManager import StudyAssistantManager
@@ -17,10 +17,15 @@ class ChatRequest(BaseModel):
     contextURLs: list[ContextURL] = Field(default_factory=list, description="URLs adicionais para contexto")
     message: str = Field(..., description="Pergunta ou comando para o assistente de estudo")
 
+def get_assistant_manager(request: Request) -> StudyAssistantManager:
+    """Dependency function to provide the StudyAssistantManager instance."""
+    return request.app.state.assistant_manager
 
 @router.post("/chat")
-async def chat_endpoint(request: ChatRequest):
-    assistant_manager = StudyAssistantManager()  # Get the singleton instance of StudyAssistantManager
+async def chat_endpoint(
+    request: ChatRequest,
+    assistant_manager: StudyAssistantManager = Depends(get_assistant_manager)
+):
     
     urls = [context.url for context in request.contextURLs]
     
@@ -33,7 +38,7 @@ async def chat_endpoint(request: ChatRequest):
             context_urls=urls
         )
         
-        async for msg, metadata in stream:
+        async for msg, _ in stream:
             if msg and hasattr(msg, "content") and msg.content:
                 # Determine message type based on class name
                 msg_class_name = type(msg).__name__

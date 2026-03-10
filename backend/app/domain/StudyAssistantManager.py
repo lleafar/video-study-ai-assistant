@@ -11,16 +11,8 @@ from Config import Config
 import asyncio
 
 class StudyAssistantManager:
-    _instance = None # Singleton instance
-    
-    def __new__(cls):
-        """Implement singleton pattern to ensure only one instance exists."""
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialize()
-        return cls._instance
-    
-    def _initialize(self):
+
+    def __init__(self):
         """Initialize the StudyAssistantManager with necessary configurations."""
         self.checkpointer = Config.get_checkpointer()  # Checkpointer configuration for state storage
         self.embeddings = Config.get_embeddings()  # Initialize the embedding function    
