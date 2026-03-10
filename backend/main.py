@@ -46,16 +46,16 @@ class StartupCheck(HealthCheck):
     
     def __init__(self):
         self.diagnostics: list[HealthCheck] = []
-        self.startup_time = None
-        self.uptime_ms = None
+        self.initial_startup_time = None
+        self.startup_time_ms = None
 
     def start_startup(self):
         """Start the startup diagnostics timer."""
-        self.startup_time = time.time()
+        self.initial_startup_time = time.time()
 
     def end_startup(self):
         """End the startup diagnostics timer."""
-        self.uptime_ms = int((time.time() - self.startup_time) * 1000)
+        self.startup_time_ms = int((time.time() - self.initial_startup_time) * 1000)
 
     def add_diagnostic(self, name: str):
         """Add a health check trace to the diagnostics."""
@@ -72,7 +72,8 @@ class StartupCheck(HealthCheck):
         
         return {            
             "status": app_status,
-            "uptime_ms": self.uptime_ms,
+            "startup_time_ms": self.startup_time_ms,
+            "uptime_ms": int((time.time() - self.initial_startup_time) * 1000) if self.initial_startup_time else None,
             "diagnostics": [
                 {
                     "name": str(d.name),
@@ -95,13 +96,12 @@ async def lifespan(app: FastAPI):
     orchestrator_check = diagnostics.add_diagnostic("Langchain Orchestrator Initialization")
     try:
         app.state.assistant_manager = StudyAssistantManager()
+        orchestrator_check.success()
     except Exception as e:
         orchestrator_check.failure(e)
         print(f"Error occurred while initializing StudyAssistantManager: {e}")
         raise
-    finally:
-        orchestrator_check.success()
-
+        
     app.state.startup_diagnostics = diagnostics  # Store diagnostics in app state for later retrieval
 
     diagnostics.end_startup()  # End the startup diagnostics time

@@ -2,6 +2,7 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from datetime import datetime, timezone
+import time
 
 router = APIRouter()
 
@@ -13,11 +14,22 @@ async def health_check(request: Request) -> JSONResponse:
     the health of the application.
     """
     
-    uptime_ms = request.app.state.startup_diagnostics.uptime_ms if hasattr(request.app.state, "startup_diagnostics") else None
+    diagnostics = request.app.state.startup_diagnostics if hasattr(request.app.state, "startup_diagnostics") else None
+    
+    if diagnostics:
+        initial_startup_time = diagnostics.initial_startup_time if hasattr(diagnostics, "initial_startup_time") else None    
+        uptime_ms = int((time.time() - initial_startup_time) * 1000) if initial_startup_time else None
+    
+        startup_time_ms = diagnostics.startup_time_ms if hasattr(diagnostics, "startup_time_ms") else None
+    else:
+        startup_time_ms = None
+        uptime_ms = None
+
     return JSONResponse(
         content={
             "status": "healthy",
             "timestamp": datetime.now(timezone.utc).isoformat(),            
+            "startup_time_ms": startup_time_ms,
             "uptime_ms": uptime_ms
         }, 
         status_code=200)
