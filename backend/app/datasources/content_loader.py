@@ -5,8 +5,10 @@ from markdownify import markdownify as md
 from app.services.title_service import get_url_title_service
 import re
 import asyncio
-from tenacity import retry, stop_after_attempt, wait_exponential, RetryError, retry_if_exception_type
-from httpx import ConnectTimeout, ReadTimeout, ConnectError, WriteError, TimeoutException
+from tenacity import retry, stop_after_attempt, wait_exponential, RetryError, retry_if_exception_type, retry_if_exception
+from httpx import ConnectTimeout, ReadTimeout, ConnectError, WriteError, TimeoutException, HTTPStatusError
+from youtube_transcript_api import RequestBlocked, IpBlocked
+import requests
 
 # Define the exceptions that should trigger a retry (CircuitBreak strategy can be implemented in the future if needed)
 RETRYABLE_EXCEPTIONS = (
@@ -16,6 +18,8 @@ RETRYABLE_EXCEPTIONS = (
     WriteError, # Error while trying to send data to the server (e.g., server is overloaded, network issues)
     TimeoutException # General timeout exception (e.g., operation took too long)
 )
+
+RETRYABLE_STATUS_CODES = [408, 429, 500, 502, 503, 504] # HTTP status codes that indicate transient errors (e.g., request timeout, too many requests, server errors)
 
 class ContentLoader:
 
@@ -30,14 +34,33 @@ class ContentLoader:
         except RetryError as e:
             print(f"Failed to load content from {url} after multiple attempts: {e}")
             return []
+        except IpBlocked as e:
+            print(f"Youtube IP blocked while loading content from {url}")
+            return []
+        except RequestBlocked as e:
+            print(f"Youtube request blocked while loading content from {url}")
+            return []
+        except requests.exceptions.HTTPError as e:
+            print(f"HTTP error {e.response.status_code} while loading content from {url}")
+            return []
         except Exception as e:
             print(f"Unexpected error while loading content from {url}: {e}")
             return []
+    
+    @staticmethod    
+    def _is_retriable(e: Exception) -> bool:
+        is_valid_exception = isinstance(e, RETRYABLE_EXCEPTIONS)        
+        is_valid_http_status = (isinstance(e, HTTPStatusError) or isinstance(e, requests.exceptions.HTTPError)) and e.response.status_code in RETRYABLE_STATUS_CODES
         
+        if is_valid_exception or is_valid_http_status:                        
+            print(f"Retrying after error: {str(e)[:40]}...")  # Log the error message for debugging purposes
+                            
+        return is_valid_exception or is_valid_http_status
+
     @retry(
         stop=stop_after_attempt(3), 
         wait=wait_exponential(multiplier=1, min=2, max=5),
-        retry=retry_if_exception_type(RETRYABLE_EXCEPTIONS),
+        retry=retry_if_exception(_is_retriable),
         reraise=True  # Reraise for non-retryable exceptions and after max attempts
     )
     async def _load_safe(url:str):
@@ -89,7 +112,8 @@ class ContentLoader:
             url,
             bs_kwargs={
                 'parse_only': SoupStrainer(tags_to_extract)
-            }
+            },
+            raise_for_status=True
         )
 
         soup = loader.scrape() # Get the BeautifulSoup object from the loader
